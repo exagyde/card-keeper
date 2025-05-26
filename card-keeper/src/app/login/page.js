@@ -18,7 +18,18 @@ export default function LoginPage() {
         setError("");
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const idToken = await userCredential.user.getIdToken();
+
+            const response = await fetch("/api/session", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ token: idToken })
+            });
+
+            if (!response.ok) throw new Error("Failed to create session");
             router.push("/dashboard");
         } catch (err) {
             setError(err.message);
@@ -27,8 +38,20 @@ export default function LoginPage() {
 
     const handleGoogleLogin = async () => {
         setError("");
+
         try {
-            await signInWithPopup(auth, provider);
+            const userCredential = await signInWithPopup(auth, provider);
+            const idToken = await userCredential.user.getIdToken();
+
+            const response = await fetch("/api/session", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ token: idToken })
+            });
+
+            if (!response.ok) throw new Error("Failed to create session");
             router.push("/dashboard");
         } catch (err) {
             setError(err.message);
@@ -62,6 +85,7 @@ export default function LoginPage() {
                 <button type="submit">Login</button>
                 <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
                 {error && <p style={{ color: "red" }}>{error}</p>}
+                <a href="/signup">Sign Up</a>
             </form>
         </div>
     );

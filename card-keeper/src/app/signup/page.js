@@ -62,6 +62,7 @@ export default function SignupPage() {
                 </div>
                 <button type="submit">Sign Up</button>
                 {error && <p style={{ color: "red" }}>{error}</p>}
+                <a href="/login">Login</a>
             </form>
         </div>
     );
