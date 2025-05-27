@@ -81,6 +81,7 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
+                    <a href="/forgot-password">Forgot password</a>
                 </div>
                 <button type="submit">Login</button>
                 <button type="button" onClick={handleGoogleLogin}>Login with Google</button>

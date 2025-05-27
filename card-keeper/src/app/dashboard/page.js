@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { adminApp } from "@/firebase/admin";
 import { redirect } from "next/navigation";
+import DashboardClient from "./client";
 
 export default async function DashboardPage() {
     const cookieStore = await cookies();
@@ -10,12 +11,8 @@ export default async function DashboardPage() {
         const decodedToken = await adminApp.auth().verifySessionCookie(token);
         const userEmail = decodedToken.email;
 
-        return (
-            <div>
-                <h1>Welcome to your Dashboard, {userEmail}</h1>
-            </div>
-        );
+        return <DashboardClient email={userEmail} />;
     } catch (error) {
         return redirect("/login");
     }
-}
+}  
