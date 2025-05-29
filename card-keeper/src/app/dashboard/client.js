@@ -10,6 +10,13 @@ export default function DashboardClient({ email, collections }) {
         router.push("/login");
     };
 
+    const handleDeleteCollection = async (id) => {
+        await fetch(`/api/collections/${id}`, {
+            method: "DELETE"
+        });
+        router.refresh();
+    }
+
     return (
         <div>
             <button type="button" onClick={handleLogout}>Logout</button>
@@ -18,11 +25,29 @@ export default function DashboardClient({ email, collections }) {
             {collections.length === 0 ? (
                 <p>Collections empty.</p>
             ) : (
-                <ul>
-                    {collections.map((collection) => (
-                        <li key={collection.id}>{collection.name}</li>
-                    ))}
-                </ul>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Created at</th>
+                            <th>Updated at</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {collections.map((collection) => (
+                            <tr key={collection.id}>
+                                <td>{collection.name}</td>
+                                <td>{new Date(collection.createdAt).toDateString()}</td>
+                                <td>{new Date(collection.updatedAt).toDateString()}</td>
+                                <td>
+                                    <a href={`/dashboard/collections/${collection.id}/edit`}>Edit</a>
+                                    <button type="button" onClick={() => handleDeleteCollection(collection.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             )}
         </div>
     );

@@ -25,6 +25,6 @@ export async function POST(request) {
         return NextResponse.json({ id: collectionRef.id, name, description }, { status: 201 });
     } catch (error) {
         console.error("Error creating collection:", error);
-        return NextResponse.json({ error: "Server error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

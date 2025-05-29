@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { adminApp } from "@/firebase/admin";
 import { redirect } from "next/navigation";
+import { sanitizeForClient } from "@/utils/sanitize";
 import { getCollectionsByUser } from "@/utils/firestoreHelpers";
 import DashboardClient from "./client";
 
@@ -13,7 +14,8 @@ export default async function DashboardPage() {
         const userId = decodedToken.uid;
         const userEmail = decodedToken.email;
 
-        const collections = JSON.parse(JSON.stringify(await getCollectionsByUser(userId)));
+        const rawCollections = await getCollectionsByUser(userId);
+        const collections = sanitizeForClient(rawCollections);
 
         return <DashboardClient email={userEmail} collections={collections} />;
     } catch (error) {
