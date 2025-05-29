@@ -14,6 +14,7 @@ export default function DashboardClient({ email, collections }) {
         <div>
             <button type="button" onClick={handleLogout}>Logout</button>
             <h1>Welcome to your Dashboard, {email}</h1>
+            <a href="/dashboard/collections/new">+ New collection</a>
             {collections.length === 0 ? (
                 <p>Collections empty.</p>
             ) : (
