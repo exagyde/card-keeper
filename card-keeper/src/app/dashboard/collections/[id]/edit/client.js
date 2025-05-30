@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function EditCollectionClient({ collection, cards }) {
     const router = useRouter();
     const [name, setName] = useState(collection.name);
     const [description, setDescription] = useState(collection.description);
+    const fileInputRef = useRef(null);
+    const [newCardFile, setNewCardFile] = useState(null);
     const [newCardName, setNewCardName] = useState("");
 
     const handleUpdate = async (e) => {
@@ -32,13 +34,35 @@ export default function EditCollectionClient({ collection, cards }) {
     const handleAddCard = async (e) => {
         e.preventDefault();
 
-        await fetch(`/api/collections/${collection.id}/cards`, {
+        if(newCardFile && newCardFile.Size > 1024 * 1024) {
+            alert("File size exceeds 1MB limit.");
+            return;
+        }
+
+        if(newCardFile) {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
+                await fetch(`/api/collections/${collection.id}/cards`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ name: newCardName, image: base64Image })
+                });
+                setNewCardFile(null);
+                if(fileInputRef.current) fileInputRef.current.value = null;
+            };
+            reader.readAsDataURL(newCardFile);
+        } else {
+            await fetch(`/api/collections/${collection.id}/cards`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ name: newCardName })
-        });
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name: newCardName })
+            });
+        }
 
         setNewCardName("");
         router.refresh();
@@ -84,6 +108,12 @@ export default function EditCollectionClient({ collection, cards }) {
             <h2>Cards in this collection</h2>
             <form onSubmit={handleAddCard}>
                 <input 
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    ref={fileInputRef}
+                    onChange={(e) => setNewCardFile(e.target.files[0])}
+                />
+                <input 
                     type="text" 
                     placeholder="New Card Name" 
                     value={newCardName}
@@ -98,6 +128,7 @@ export default function EditCollectionClient({ collection, cards }) {
                 <table>
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Card Name</th>
                             <th>Created At</th>
                             <th>Actions</th>
@@ -106,6 +137,13 @@ export default function EditCollectionClient({ collection, cards }) {
                     <tbody>
                         {cards.map(card => (
                             <tr key={card.id}>
+                                <td>
+                                    {card.image ? (
+                                        <img src={card.image} alt={card.name} style={{ width: "50px" }} />
+                                    ) : (
+                                        <span>No Image</span>
+                                    )}
+                                </td>
                                 <td>{card.name}</td>
                                 <td>{new Date(card.createdAt).toDateString()}</td>
                                 <td>

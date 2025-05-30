@@ -6,7 +6,7 @@ export async function POST(request, { params }) {
     
     try {
         const body = await request.json();
-        const { name } = body;
+        const { name, image } = body;
 
         const sessionCookie = request.cookies.get("__session")?.value;
         const decodedToken = await adminApp.auth().verifySessionCookie(sessionCookie, true);
@@ -19,6 +19,7 @@ export async function POST(request, { params }) {
         const cardsRef = db.collection("collections").doc(id).collection("cards");
         const cardDoc = await cardsRef.add({
             name,
+            image: image || null,
             createdAt: adminApp.firestore.FieldValue.serverTimestamp()
         });
 
