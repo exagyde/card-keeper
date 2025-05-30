@@ -38,7 +38,15 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        await adminApp.firestore().collection("collections").doc(id).delete();
+        const cardsSnapshot = await adminApp.firestore().collection("collections").doc(id).collection("cards").get();
+        const batch = adminApp.firestore().batch();
+        cardsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        batch.delete(adminApp.firestore().collection("collections").doc(id));
+        await batch.commit();
+
         return NextResponse.json({ message: "Collection deleted successfully" }, { status: 201 });
     } catch (error) {
         console.error("Error deleting collection:", error);

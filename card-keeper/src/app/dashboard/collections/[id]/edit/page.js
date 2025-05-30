@@ -21,7 +21,11 @@ export default async function EditCollectionPage({ params }) {
         const rawCollection = { id: collectionRef.id, ...collectionRef.data() };
         const collection = sanitizeForClient(rawCollection);
 
-        return <EditCollectionClient collection={collection} />;
+        const cardsRef = await db.collection("collections").doc(id).collection("cards").get();
+        const rawCards = cardsRef.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const cards = rawCards.map(card => sanitizeForClient(card));
+
+        return <EditCollectionClient collection={collection} cards={cards} />;
     } catch (error) {
         return redirect("/login");
     }
